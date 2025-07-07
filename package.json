@@ -1,0 +1,20 @@
+{
+  "name": "sudoku-web",
+  "version": "1.0.0",
+  "description": "一个现代化的Web数独游戏，基于原Android版本重新设计",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8080 || python3 -m http.server 8080",
+    "dev": "live-server --port=8080",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["sudoku", "puzzle", "game", "web", "javascript"],
+  "author": "数独游戏开发团队",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

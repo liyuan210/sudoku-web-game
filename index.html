@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数独游戏</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">数独游戏</h1>
+            <div class="game-info">
+                <div class="timer">
+                    <span class="timer-label">时间:</span>
+                    <span class="timer-value" id="timer">00:00</span>
+                </div>
+                <div class="difficulty">
+                    <span class="difficulty-label">难度:</span>
+                    <select id="difficulty-select" class="difficulty-select">
+                        <option value="fast">快速</option>
+                        <option value="easy">简单</option>
+                        <option value="normal" selected>普通</option>
+                        <option value="hard">困难</option>
+                        <option value="evil">极难</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <main class="game-container">
+            <div class="game-board-container">
+                <div class="sudoku-board" id="sudoku-board">
+                    <!-- 数独棋盘将通过JavaScript生成 -->
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <div class="number-pad">
+                    <button class="number-btn" data-number="1">1</button>
+                    <button class="number-btn" data-number="2">2</button>
+                    <button class="number-btn" data-number="3">3</button>
+                    <button class="number-btn" data-number="4">4</button>
+                    <button class="number-btn" data-number="5">5</button>
+                    <button class="number-btn" data-number="6">6</button>
+                    <button class="number-btn" data-number="7">7</button>
+                    <button class="number-btn" data-number="8">8</button>
+                    <button class="number-btn" data-number="9">9</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" id="pencil-btn" title="铅笔模式">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn" id="eraser-btn" title="橡皮擦">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 20H7l-5-5 5-5h13v10z"/>
+                            <path d="M12 15l5-5"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn" id="undo-btn" title="撤销">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 7v6h6"/>
+                            <path d="M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/>
+                        </svg>
+                    </button>
+                    <button class="action-btn" id="redo-btn" title="重做">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 7v6h-6"/>
+                            <path d="M3 17a9 9 0 019-9 9 9 0 016 2.3L21 13"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="game-actions">
+                    <button class="game-btn" id="new-game-btn">新游戏</button>
+                    <button class="game-btn" id="pause-btn">暂停</button>
+                    <button class="game-btn" id="hint-btn">提示</button>
+                    <button class="game-btn" id="solve-btn">解答</button>
+                </div>
+
+                <div class="remaining-numbers" id="remaining-numbers">
+                    <div class="remaining-title">剩余数字:</div>
+                    <div class="remaining-grid">
+                        <div class="remaining-item" data-number="1">1: <span>9</span></div>
+                        <div class="remaining-item" data-number="2">2: <span>9</span></div>
+                        <div class="remaining-item" data-number="3">3: <span>9</span></div>
+                        <div class="remaining-item" data-number="4">4: <span>9</span></div>
+                        <div class="remaining-item" data-number="5">5: <span>9</span></div>
+                        <div class="remaining-item" data-number="6">6: <span>9</span></div>
+                        <div class="remaining-item" data-number="7">7: <span>9</span></div>
+                        <div class="remaining-item" data-number="8">8: <span>9</span></div>
+                        <div class="remaining-item" data-number="9">9: <span>9</span></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 游戏完成对话框 -->
+        <div class="modal" id="win-modal">
+            <div class="modal-content">
+                <h2>恭喜！</h2>
+                <p>您已成功完成数独游戏！</p>
+                <p>用时: <span id="final-time"></span></p>
+                <div class="modal-actions">
+                    <button class="game-btn" id="new-game-modal-btn">再来一局</button>
+                    <button class="game-btn secondary" id="close-modal-btn">关闭</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 暂停覆盖层 -->
+        <div class="pause-overlay" id="pause-overlay">
+            <div class="pause-content">
+                <h2>游戏已暂停</h2>
+                <button class="game-btn" id="resume-btn">继续游戏</button>
+            </div>
+        </div>
+
+        <!-- 游戏说明部分 -->
+        <section class="game-instructions">
+            <div class="instructions-container">
+                <h2 class="instructions-title">🎯 游戏说明</h2>
+                
+                <div class="instructions-grid">
+                    <!-- 游戏规则 -->
+                    <div class="instruction-card">
+                        <div class="card-header">
+                            <div class="card-icon">📋</div>
+                            <h3>游戏规则</h3>
+                        </div>
+                        <div class="card-content">
+                            <ol>
+                                <li>在9×9的网格中填入数字1-9</li>
+                                <li>每行、每列、每个3×3宫格内数字不能重复</li>
+                                <li>灰色数字为题目给定，不可修改</li>
+                                <li>填满所有空格即为胜利</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- 操作指南 -->
+                    <div class="instruction-card">
+                        <div class="card-header">
+                            <div class="card-icon">🎮</div>
+                            <h3>操作指南</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="operation-step">
+                                <span class="step-number">1</span>
+                                <span class="step-text">点击空格选择要填入的位置</span>
+                            </div>
+                            <div class="operation-step">
+                                <span class="step-number">2</span>
+                                <span class="step-text">点击数字按钮或按键盘1-9输入数字</span>
+                            </div>
+                            <div class="operation-step">
+                                <span class="step-number">3</span>
+                                <span class="step-text">使用铅笔模式标记可能的数字</span>
+                            </div>
+                            <div class="operation-step">
+                                <span class="step-number">4</span>
+                                <span class="step-text">错误输入会显示红色提示</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 快捷键 -->
+                    <div class="instruction-card">
+                        <div class="card-header">
+                            <div class="card-icon">⌨️</div>
+                            <h3>快捷键</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="shortcut-grid">
+                                <div class="shortcut-item">
+                                    <kbd>1-9</kbd>
+                                    <span>输入数字</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>方向键</kbd>
+                                    <span>移动选择</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>空格</kbd>
+                                    <span>铅笔模式</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Delete</kbd>
+                                    <span>擦除数字</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Ctrl+Z</kbd>
+                                    <span>撤销操作</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Ctrl+Y</kbd>
+                                    <span>重做操作</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 游戏技巧 -->
+                    <div class="instruction-card">
+                        <div class="card-header">
+                            <div class="card-icon">💡</div>
+                            <h3>解题技巧</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="tip-item">
+                                <strong>排除法：</strong>观察行、列、宫格已有数字，排除不可能的选项
+                            </div>
+                            <div class="tip-item">
+                                <strong>唯一候选法：</strong>找到只有一个可能数字的空格
+                            </div>
+                            <div class="tip-item">
+                                <strong>铅笔标记：</strong>用铅笔模式标记可能的数字，便于分析
+                            </div>
+                            <div class="tip-item">
+                                <strong>从简单开始：</strong>先填写确定的数字，再处理复杂的推理
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 难度说明 -->
+                    <div class="instruction-card">
+                        <div class="card-header">
+                            <div class="card-icon">🏆</div>
+                            <h3>难度级别</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="difficulty-levels">
+                                <div class="difficulty-item easy">
+                                    <span class="difficulty-name">快速</span>
+                                    <span class="difficulty-desc">24个空格，适合快速练习</span>
+                                </div>
+                                <div class="difficulty-item easy">
+                                    <span class="difficulty-name">简单</span>
+                                    <span class="difficulty-desc">32个空格，新手友好</span>
+                                </div>
+                                <div class="difficulty-item normal">
+                                    <span class="difficulty-name">普通</span>
+                                    <span class="difficulty-desc">40个空格，标准难度</span>
+                                </div>
+                                <div class="difficulty-item hard">
+                                    <span class="difficulty-name">困难</span>
+                                    <span class="difficulty-desc">48个空格，需要逻辑推理</span>
+                                </div>
+                                <div class="difficulty-item expert">
+                                    <span class="difficulty-name">极难</span>
+                                    <span class="difficulty-desc">56个空格，挑战高手</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 功能说明 -->
+                    <div class="instruction-card">
+                        <div class="card-header">
+                            <div class="card-icon">🔧</div>
+                            <h3>功能说明</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="feature-grid">
+                                <div class="feature-item">
+                                    <div class="feature-icon">✏️</div>
+                                    <div class="feature-desc">
+                                        <strong>铅笔模式</strong>
+                                        <span>标记可能的数字</span>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">🗑️</div>
+                                    <div class="feature-desc">
+                                        <strong>橡皮擦</strong>
+                                        <span>清除格子内容</span>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">💡</div>
+                                    <div class="feature-desc">
+                                        <strong>提示功能</strong>
+                                        <span>获取一个正确答案</span>
+                                    </div>
+                                </div>
+                                <div class="feature-item">
+                                    <div class="feature-icon">⏸️</div>
+                                    <div class="feature-desc">
+                                        <strong>暂停功能</strong>
+                                        <span>暂停计时器</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="sudoku-generator.js"></script>
+    <script src="game-engine.js"></script>
+    <script src="main.js"></script>
+</body>
+</html> 
