@@ -370,7 +370,7 @@ class SudokuApp {
             this.showWinModal(data.time);
         } else {
             // 显示错误提示
-            alert('数独解答有误，请检查后重试！');
+            alert('Sudoku solution is incorrect, please check and try again!');
         }
     }
 
@@ -426,7 +426,7 @@ class SudokuApp {
         this.gameEngine.selectCell(row, col);
         
         // 显示提示值
-        alert(`提示：第${row + 1}行第${col + 1}列应该填入数字${value}`);
+        alert(`Hint: Row ${row + 1}, Column ${col + 1} should be ${value}`);
     }
 
     // 显示错误
@@ -458,7 +458,7 @@ class SudokuApp {
 
     // 处理解答显示
     handleSolutionShown() {
-        alert('已显示完整解答！');
+        alert('Complete solution has been revealed!');
     }
 
     // 处理键盘输入
