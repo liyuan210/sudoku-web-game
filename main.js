@@ -6,6 +6,14 @@ class SudokuApp {
         this.selectedNumber = null;
         this.highlightedCells = [];
         
+        // 初始化新功能
+        this.notificationSystem = NotificationSystem.getInstance();
+        this.soundManager = SoundManager.getInstance();
+        this.settings = GameStorage.getSettings();
+        
+        // 应用设置
+        this.applySettings();
+        
         // DOM元素
         this.boardElement = document.getElementById('sudoku-board');
         this.timerElement = document.getElementById('timer');
@@ -34,7 +42,28 @@ class SudokuApp {
         this.setupEventListeners();
         this.setupGameEngineListeners();
         this.createBoard();
-        this.startNewGame();
+        
+        // 尝试加载保存的游戏
+        if (!this.loadGameState()) {
+            this.startNewGame();
+        }
+        
+        // 设置页面可见性监听
+        document.addEventListener('visibilitychange', () => {
+            this.handleVisibilityChange();
+        });
+        
+        // 设置窗口关闭监听
+        window.addEventListener('beforeunload', (e) => {
+            this.handleBeforeUnload(e);
+        });
+        
+        // 定期自动保存
+        if (this.settings.autoSave) {
+            setInterval(() => {
+                this.saveGameState();
+            }, 30000); // 每30秒自动保存
+        }
     }
 
     // 设置事件监听器
@@ -99,6 +128,15 @@ class SudokuApp {
 
         document.getElementById('resume-btn').addEventListener('click', () => {
             this.togglePause();
+        });
+
+        // 新功能按钮
+        document.getElementById('stats-btn').addEventListener('click', () => {
+            StatsPanel.show();
+        });
+
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            SettingsPanel.show();
         });
 
         // 键盘事件
@@ -195,12 +233,30 @@ class SudokuApp {
 
     // 开始新游戏
     startNewGame() {
+        // 检查是否需要确认
+        if (this.settings.confirmBeforeNewGame && this.gameEngine.elapsedTime > 30000) {
+            if (!confirm('确定要开始新游戏吗？当前进度将会丢失。')) {
+                return;
+            }
+        }
+        
         this.clearHighlights();
         this.clearErrors();
         this.clearNumberSelection();
         this.hideWinModal();
         this.hidePauseOverlay();
         this.gameEngine.initNewGame(this.currentDifficulty);
+        
+        // 保存统计
+        GameStorage.saveStats({ gameStarted: true });
+        
+        // 播放音效
+        if (this.settings.soundEnabled) {
+            this.soundManager.playClick();
+        }
+        
+        // 显示通知
+        NotificationSystem.info(`开始${this.getDifficultyName()}难度游戏`);
     }
 
     // 选择格子
@@ -222,6 +278,11 @@ class SudokuApp {
         this.numberButtons.forEach(btn => {
             btn.classList.toggle('selected', parseInt(btn.dataset.number) === this.selectedNumber);
         });
+        
+        // 播放选择音效
+        if (this.settings.soundEnabled) {
+            this.soundManager.playSelect();
+        }
         
         // 如果有选中的格子，直接输入数字
         if (this.gameEngine.selectedCell && this.selectedNumber) {
@@ -367,10 +428,29 @@ class SudokuApp {
     // 处理游戏完成
     handleGameComplete(data) {
         if (data.isValid) {
+            // 保存统计
+            GameStorage.saveStats({
+                gameCompleted: true,
+                playTime: data.time,
+                difficulty: this.currentDifficulty
+            });
+            
+            // 播放完成音效
+            if (this.settings.soundEnabled) {
+                this.soundManager.playComplete();
+            }
+            
+            // 显示完成通知
+            NotificationSystem.success(`恭喜完成${this.getDifficultyName()}难度！用时 ${this.gameEngine.formatTime(data.time)}`);
+            
             this.showWinModal(data.time);
         } else {
             // 显示错误提示
-            alert('Sudoku solution is incorrect, please check and try again!');
+            NotificationSystem.error('数独解答不正确，请检查后重试！');
+            
+            if (this.settings.soundEnabled) {
+                this.soundManager.playError();
+            }
         }
     }
 
@@ -425,8 +505,16 @@ class SudokuApp {
         // 选中该格子
         this.gameEngine.selectCell(row, col);
         
-        // 显示提示值
-        alert(`Hint: Row ${row + 1}, Column ${col + 1} should be ${value}`);
+        // 播放提示音效
+        if (this.settings.soundEnabled) {
+            this.soundManager.playHint();
+        }
+        
+        // 显示提示通知
+        NotificationSystem.hint(`提示：第${row + 1}行，第${col + 1}列应该是 ${value}`, 5000);
+        
+        // 保存统计
+        GameStorage.saveStats({ hintsUsed: (GameStorage.getStats().hintsUsed || 0) + 1 });
     }
 
     // 显示错误
@@ -441,6 +529,17 @@ class SudokuApp {
             const cell = cells[index];
             cell.classList.add('error');
         });
+        
+        // 播放错误音效
+        if (this.settings.soundEnabled) {
+            this.soundManager.playError();
+        }
+        
+        // 显示错误通知
+        NotificationSystem.error(`发现 ${errors.length} 个冲突`);
+        
+        // 保存统计
+        GameStorage.saveStats({ errorsFound: (GameStorage.getStats().errorsFound || 0) + errors.length });
         
         // 3秒后清除错误显示
         setTimeout(() => {
@@ -458,7 +557,11 @@ class SudokuApp {
 
     // 处理解答显示
     handleSolutionShown() {
-        alert('Complete solution has been revealed!');
+        NotificationSystem.info('完整解答已显示！');
+        
+        if (this.settings.soundEnabled) {
+            this.soundManager.playSuccess();
+        }
     }
 
     // 处理键盘输入
@@ -523,6 +626,116 @@ class SudokuApp {
         if (e.ctrlKey && key === 'y') {
             this.gameEngine.redo();
             e.preventDefault();
+        }
+    }
+
+    // 应用设置
+    applySettings() {
+        // 应用音效设置
+        this.soundManager.setEnabled(this.settings.soundEnabled);
+        
+        // 应用显示设置
+        const timerElement = document.querySelector('.timer');
+        if (timerElement) {
+            timerElement.style.display = this.settings.showTimer ? 'flex' : 'none';
+        }
+        
+        const remainingElement = document.querySelector('.remaining-numbers');
+        if (remainingElement) {
+            remainingElement.style.display = this.settings.showRemainingNumbers ? 'block' : 'none';
+        }
+        
+        // 应用主题
+        document.body.className = document.body.className.replace(/theme-\w+/g, '');
+        if (this.settings.theme !== 'default') {
+            document.body.classList.add(`theme-${this.settings.theme}`);
+        }
+    }
+
+    // 设置更改回调
+    onSettingsChanged(newSettings) {
+        this.settings = newSettings;
+        this.applySettings();
+        
+        // 自动保存游戏状态
+        if (this.settings.autoSave) {
+            this.saveGameState();
+        }
+    }
+
+    // 保存游戏状态
+    saveGameState() {
+        if (this.gameEngine && !this.gameEngine.isGameComplete) {
+            const gameState = this.gameEngine.getGameState();
+            GameStorage.saveGame({
+                ...gameState,
+                difficulty: this.currentDifficulty
+            });
+        }
+    }
+
+    // 加载游戏状态
+    loadGameState() {
+        const savedGame = GameStorage.loadGame();
+        if (savedGame && savedGame.currentBoard) {
+            // 询问是否继续上次游戏
+            if (confirm('发现未完成的游戏，是否继续？')) {
+                try {
+                    this.gameEngine.loadGameState(savedGame);
+                    this.currentDifficulty = savedGame.difficulty || 'normal';
+                    this.difficultySelect.value = this.currentDifficulty;
+                    NotificationSystem.success('游戏进度已恢复');
+                    return true;
+                } catch (error) {
+                    NotificationSystem.error('游戏数据损坏，将开始新游戏');
+                    GameStorage.clearGame();
+                }
+            } else {
+                GameStorage.clearGame();
+            }
+        }
+        return false;
+    }
+
+    // 获取难度名称
+    getDifficultyName() {
+        const names = {
+            fast: '快速',
+            easy: '简单', 
+            normal: '普通',
+            hard: '困难',
+            evil: '极难'
+        };
+        return names[this.currentDifficulty] || '普通';
+    }
+
+    // 页面可见性变化处理
+    handleVisibilityChange() {
+        if (document.hidden) {
+            // 页面隐藏时自动暂停
+            if (!this.gameEngine.isPaused && !this.gameEngine.isGameComplete) {
+                this.gameEngine.pauseGame();
+            }
+            
+            // 自动保存
+            if (this.settings.autoSave) {
+                this.saveGameState();
+            }
+        }
+    }
+
+    // 窗口关闭前处理
+    handleBeforeUnload(e) {
+        // 自动保存
+        if (this.settings.autoSave && !this.gameEngine.isGameComplete) {
+            this.saveGameState();
+        }
+        
+        // 如果游戏进行中，提示用户
+        if (this.gameEngine.elapsedTime > 30000 && !this.gameEngine.isGameComplete) {
+            e.preventDefault();
+            e.returnValue = '游戏正在进行中，确定要离开吗？';
+            return e.returnValue;
         }
     }
 }

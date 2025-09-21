@@ -459,8 +459,59 @@ class GameEngine {
             isPencilMode: this.isPencilMode,
             isGameComplete: this.isGameComplete,
             isPaused: this.isPaused,
-            elapsedTime: this.elapsedTime
+            elapsedTime: this.elapsedTime,
+            gameStartTime: this.gameStartTime,
+            history: this.history,
+            historyIndex: this.historyIndex
         };
+    }
+
+    // 加载游戏状态
+    loadGameState(gameState) {
+        try {
+            this.currentBoard = gameState.currentBoard.map(row => [...row]);
+            this.solvedBoard = gameState.solvedBoard.map(row => [...row]);
+            this.givenCells = new Set(gameState.givenCells);
+            this.pencilMarks = { ...gameState.pencilMarks };
+            this.selectedCell = gameState.selectedCell;
+            this.isPencilMode = gameState.isPencilMode || false;
+            this.isGameComplete = gameState.isGameComplete || false;
+            this.isPaused = gameState.isPaused || false;
+            this.elapsedTime = gameState.elapsedTime || 0;
+            this.gameStartTime = gameState.gameStartTime || Date.now();
+            this.history = gameState.history || [this.deepCopyBoard(this.currentBoard)];
+            this.historyIndex = gameState.historyIndex || 0;
+            
+            // 重新开始计时器
+            if (!this.isGameComplete && !this.isPaused) {
+                this.startTimer();
+            }
+            
+            // 通知监听器
+            this.emit('gameInitialized', {
+                board: this.currentBoard,
+                solvedBoard: this.solvedBoard,
+                givenCells: Array.from(this.givenCells)
+            });
+            
+            this.emit('boardUpdated', {
+                board: this.currentBoard,
+                pencilMarks: this.pencilMarks
+            });
+            
+            this.emit('pencilModeChanged', this.isPencilMode);
+            this.updateRemainingNumbers();
+            
+            if (this.selectedCell) {
+                this.emit('cellSelected', this.selectedCell);
+                this.highlightRelatedCells(this.selectedCell.row, this.selectedCell.col);
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Failed to load game state:', error);
+            return false;
+        }
     }
 
     // 销毁游戏引擎
