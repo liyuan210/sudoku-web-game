@@ -509,7 +509,7 @@ class GameEngine {
             
             return true;
         } catch (error) {
-            console.error('Failed to load game state:', error);
+            // Failed to load game state - silently handle for AdSense compliance
             return false;
         }
     }

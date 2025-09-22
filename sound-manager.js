@@ -19,7 +19,7 @@ class SoundManager {
             // 监听用户交互以启用音频
             this.setupUserInteraction();
         } catch (error) {
-            console.warn('Audio not supported:', error);
+            // Audio not supported - silently disable for AdSense compliance
             this.enabled = false;
         }
     }
@@ -66,7 +66,7 @@ class SoundManager {
                 this.playTone(config.frequency, config.duration, config.type, options);
             }
         } catch (error) {
-            console.warn('Failed to play sound:', error);
+            // Failed to play sound - silently handle for AdSense compliance
         }
     }
 

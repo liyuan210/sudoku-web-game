@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# AdSense compliance
+Allow: /ads.txt
+
+# Disallow any admin or private directories if they exist
+# Disallow: /admin/
+# Disallow: /private/
+
+# Allow search engines to crawl all content for better AdSense approval
+Allow: *.css
+Allow: *.js
+Allow: *.html
+Allow: *.png
+Allow: *.jpg
+Allow: *.jpeg
+Allow: *.gif
+Allow: *.svg

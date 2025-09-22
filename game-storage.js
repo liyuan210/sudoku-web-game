@@ -17,7 +17,7 @@ class GameStorage {
             localStorage.setItem(this.KEYS.CURRENT_GAME, JSON.stringify(saveData));
             return true;
         } catch (error) {
-            console.error('Failed to save game:', error);
+            // Failed to save game - silently handle for AdSense compliance
             return false;
         }
     }
@@ -40,7 +40,7 @@ class GameStorage {
             
             return gameData;
         } catch (error) {
-            console.error('Failed to load game:', error);
+            // Failed to load game - silently handle for AdSense compliance
             return null;
         }
     }
@@ -58,7 +58,7 @@ class GameStorage {
             localStorage.setItem(this.KEYS.SETTINGS, JSON.stringify(updatedSettings));
             return true;
         } catch (error) {
-            console.error('Failed to save settings:', error);
+            // Failed to save settings - silently handle for AdSense compliance
             return false;
         }
     }
@@ -69,7 +69,7 @@ class GameStorage {
             const settings = localStorage.getItem(this.KEYS.SETTINGS);
             return settings ? JSON.parse(settings) : this.getDefaultSettings();
         } catch (error) {
-            console.error('Failed to load settings:', error);
+            // Failed to load settings - silently handle for AdSense compliance
             return this.getDefaultSettings();
         }
     }
@@ -125,7 +125,7 @@ class GameStorage {
             localStorage.setItem(this.KEYS.STATS, JSON.stringify(updatedStats));
             return true;
         } catch (error) {
-            console.error('Failed to save stats:', error);
+            // Failed to save stats - silently handle for AdSense compliance
             return false;
         }
     }
@@ -136,7 +136,7 @@ class GameStorage {
             const stats = localStorage.getItem(this.KEYS.STATS);
             return stats ? JSON.parse(stats) : this.getDefaultStats();
         } catch (error) {
-            console.error('Failed to load stats:', error);
+            // Failed to load stats - silently handle for AdSense compliance
             return this.getDefaultStats();
         }
     }
@@ -184,7 +184,7 @@ class GameStorage {
             }
             return true;
         } catch (error) {
-            console.error('Failed to import data:', error);
+            // Failed to import data - silently handle for AdSense compliance
             return false;
         }
     }

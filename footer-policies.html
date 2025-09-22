@@ -1,0 +1,137 @@
+<!-- Footer with required links for AdSense compliance -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="#privacy-policy" id="privacy-link">Privacy Policy</a>
+            <a href="#terms-of-service" id="terms-link">Terms of Service</a>
+            <a href="#contact" id="contact-link">Contact</a>
+        </div>
+        <div class="footer-text">
+            <p>&copy; 2024 Sudoku Game. All rights reserved. This site uses cookies and may display advertisements.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Privacy Policy Modal -->
+<div class="modal" id="privacy-modal">
+    <div class="modal-content">
+        <h2>Privacy Policy</h2>
+        <div class="policy-content">
+            <h3>Information We Collect</h3>
+            <p>We may collect information about your use of our website, including game statistics and preferences stored locally on your device.</p>
+            
+            <h3>Cookies and Local Storage</h3>
+            <p>This website uses local storage to save your game progress and settings. We may also use cookies for analytics and advertising purposes.</p>
+            
+            <h3>Third-Party Services</h3>
+            <p>This website may display advertisements served by Google AdSense and use Google Analytics for website analytics. These services may collect information about your visits to this and other websites.</p>
+            
+            <h3>Data Security</h3>
+            <p>We take reasonable measures to protect your information, though no method of transmission over the internet is 100% secure.</p>
+            
+            <h3>Contact Us</h3>
+            <p>If you have questions about this Privacy Policy, please contact us through the contact information provided.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="game-btn" id="close-privacy-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Terms of Service Modal -->
+<div class="modal" id="terms-modal">
+    <div class="modal-content">
+        <h2>Terms of Service</h2>
+        <div class="policy-content">
+            <h3>Acceptance of Terms</h3>
+            <p>By using this website, you agree to these Terms of Service.</p>
+            
+            <h3>Use of Service</h3>
+            <p>This is a free Sudoku game for entertainment purposes. You may use it for personal, non-commercial use only.</p>
+            
+            <h3>Prohibited Activities</h3>
+            <p>You may not use this service for any illegal activities or in any way that could damage or impair the service.</p>
+            
+            <h3>Intellectual Property</h3>
+            <p>The game design and code are protected by copyright. You may not copy, modify, or distribute the code without permission.</p>
+            
+            <h3>Disclaimer</h3>
+            <p>This service is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of this service.</p>
+            
+            <h3>Changes to Terms</h3>
+            <p>We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of modified terms.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="game-btn" id="close-terms-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal" id="contact-modal">
+    <div class="modal-content">
+        <h2>Contact Information</h2>
+        <div class="policy-content">
+            <p>For questions, feedback, or support regarding this Sudoku game, please contact us:</p>
+            <ul>
+                <li>Email: contact@sudokugame.com</li>
+                <li>Website: www.sudokugame.com</li>
+            </ul>
+            <p>We typically respond to inquiries within 24-48 hours.</p>
+        </div>
+        <div class="modal-actions">
+            <button class="game-btn" id="close-contact-btn">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Footer modal handlers for AdSense compliance
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('privacy-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('privacy-modal').classList.add('show');
+        });
+
+        document.getElementById('terms-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('terms-modal').classList.add('show');
+        });
+
+        document.getElementById('contact-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('contact-modal').classList.add('show');
+        });
+
+        document.getElementById('close-privacy-btn').addEventListener('click', function() {
+            document.getElementById('privacy-modal').classList.remove('show');
+        });
+
+        document.getElementById('close-terms-btn').addEventListener('click', function() {
+            document.getElementById('terms-modal').classList.remove('show');
+        });
+
+        document.getElementById('close-contact-btn').addEventListener('click', function() {
+            document.getElementById('contact-modal').classList.remove('show');
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('privacy-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+
+        document.getElementById('terms-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+
+        document.getElementById('contact-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('show');
+            }
+        });
+    });
+</script>

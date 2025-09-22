@@ -178,13 +178,7 @@ class SudokuGenerator {
 
     // 打印棋盘（调试用）
     printBoard() {
-        // 生产环境下移除console.log
-        if (process.env.NODE_ENV === 'development') {
-            console.log('Current Board:');
-            for (let i = 0; i < this.numRowOrColumn; i++) {
-                console.log(this.board[i].join(' '));
-            }
-        }
+        // 生产环境下完全移除console.log以符合AdSense政策
         return this.board;
     }
 

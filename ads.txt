@@ -1,1 +1,7 @@
+# ads.txt file for AdSense compliance
+# This file declares authorized digital sellers for this website
 google.com, pub-1203497357786022, DIRECT, f08c47fec0942fa0
+
+# Additional authorized sellers (add as needed)
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+# googlesyndication.com, pub-1203497357786022, DIRECT, f08c47fec0942fa0
